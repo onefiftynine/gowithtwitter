@@ -19,6 +19,7 @@ type TwitterApiKeys struct {
 
 var (
 	apikeys TwitterApiKeys
+	api     *anaconda.TwitterApi
 )
 
 // read config file
@@ -41,7 +42,7 @@ func main() {
 	// 	fmt.Println(tweet.Text)
 	// }
 	//	availableLocations()
-	//getCurrentTrends()
+	getCurrentTrends()
 
 	// ser go cron to run every hour
 	gocron.Every(1).Hour().Do(getCurrentTrends)
@@ -66,10 +67,14 @@ func getRandomJoke() string {
 	return j.JokeSentence + "  "
 }
 
+func init() {
+	api = anaconda.NewTwitterApi(apikeys.AccessToken, apikeys.AccessTokenSecret)
+
+}
+
 // get current trends and post to twitter
 //23424848 code for india, to get code  use availableLocations
 func getCurrentTrends() {
-	api := anaconda.NewTwitterApi(apikeys.AccessToken, apikeys.AccessTokenSecret)
 	trendResponse, _ := api.GetTrendsByPlace(23424848, nil)
 	for _, trend := range trendResponse.Trends {
 		fmt.Println(trend.Name)
@@ -81,7 +86,6 @@ func getCurrentTrends() {
 
 //post
 func post(status string, ch chan string) {
-	api := anaconda.NewTwitterApi(apikeys.AccessToken, apikeys.AccessTokenSecret)
 	fmt.Println("posting")
 	tweet, err := api.PostTweet(status, nil)
 	if err != nil {
@@ -92,7 +96,6 @@ func post(status string, ch chan string) {
 }
 
 func availableLocations() {
-	api := anaconda.NewTwitterApi(apikeys.AccessToken, apikeys.AccessTokenSecret)
 	trendLocations, _ := api.GetTrendsAvailableLocations(nil)
 	for _, location := range trendLocations {
 		fmt.Println("Name:  ", location.Name)
