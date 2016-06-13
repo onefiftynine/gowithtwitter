@@ -79,7 +79,9 @@ func getCurrentTrends() {
 	for _, trend := range trendResponse.Trends {
 		fmt.Println(trend.Name)
 		ch := make(chan string)
-		go post(getRandomJoke()+trend.Name, ch)
+		go func() {
+			post(getRandomJoke()+trend.Name, ch)
+		}()
 		fmt.Println("created at", <-ch)
 	}
 }
